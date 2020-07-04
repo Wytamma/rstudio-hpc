@@ -246,7 +246,7 @@ res3
 [1] "finished"
 ```
 
-An explicit future version of the qsub function can be created by wrapping the blocking code in the function with the futures:future function. 
+An explicit future version of the qsub function can be created by wrapping the blocking code in the function with the future:future function. 
 ```r
 future_qsub <-
   function(cmd,
@@ -317,7 +317,7 @@ Owner process: e2c28bcd-ac2d-dec8-96c8-1585b116328b
 Class: ‘MultisessionFuture’, ‘ClusterFuture’, ‘MultiprocessFuture’, ‘Future’, ‘environment’
 ```
 
-We can use the the futures::value function to get the values from a future
+We can use the the future::value function to get the values from a future.
 ```r
 res1 <- value(fut1)
 res2 <- value(fut2)
