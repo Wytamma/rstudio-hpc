@@ -14,6 +14,7 @@ export PASSWORD=$(openssl rand -base64 15)
 readonly PORT=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
 
 cat >> ${HOME}/rstudio-hpc/log.txt << END
+
 --- `date` ---
 1. SSH tunnel from your workstation using the following command:
 
