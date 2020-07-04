@@ -1,0 +1,41 @@
+BootStrap: docker
+From: rocker/tidyverse:3.6.3
+
+# https://sylabs.io/guides/3.5/user-guide/definition_files.html
+
+%post -c /bin/bash
+    # install packages 
+    apt-get update -qq && apt-get -y --no-install-recommends install \
+    openssh-server
+
+    # e.g. install ggtree
+    R -e 'BiocManager::install("ggtree")'
+    
+    # function to add host machine commands using to continer using ssh
+    # https://groups.google.com/a/lbl.gov/forum/#!topic/singularity/syLcsIWWzdo
+    
+    BIN_DIR=/usr/local/bin
+    
+    function add_host_command {
+      host_exe=$1
+      local_exe=$2
+      echo \
+        '#!/bin/bash
+        ssh $VERBOSE_FLAG ${USER}@${HOSTNAME} ' " $host_exe " '$@' > ${BIN_DIR}/${local_exe}
+    
+      chmod +x ${BIN_DIR}/${local_exe}
+    }
+
+    # add PBS commands
+    # full path required for host command 
+    add_host_command /opt/pbs/bin/qsub qsub
+    add_host_command /opt/pbs/bin/qstat qstat
+    add_host_command /opt/pbs/bin/qdel qdel
+
+%environment
+    # add env vars
+
+%labels
+    Author Wytamma Wirth
+    Version v0.0.1
+    Name rstudio_hpc
