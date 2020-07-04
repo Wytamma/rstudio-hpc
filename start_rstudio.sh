@@ -38,7 +38,7 @@ END
 # if you already have a public key copy it to .ssh/authorized_keys
 if [ ! -e ${HOME}/.ssh/id_rsa.pub ]
 then
-  cat /dev/zero | ssh-keygen -t rsa
+  cat /dev/zero | ssh-keygen -t rsa -N ""
   cat ${HOME}/.ssh/id_rsa.pub >> ${HOME}/.ssh/authorized_keys
   chmod 700 ${HOME}/.ssh; chmod 640 ${HOME}/.ssh/authorized_keys
 fi
