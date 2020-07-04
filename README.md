@@ -1,6 +1,6 @@
 # Integrating rstudio with the HPC (qsub)
 
-This repo has some scripts to get RStudio running on the compute nodes of the HPC. This is achieved though a combination of singularity and ssh commands. Once you have RStudio running you can create a nice workflow for using `qsub` from within RStudio ([see below](/#integrating-qsub-with-RStudio))
+This repo has some scripts to get RStudio running on the compute nodes of the HPC. This is achieved though a combination of singularity and ssh commands. Once you have RStudio running you can create a nice workflow for using `qsub` from within RStudio ([see below](/#integrating-qsub-with-rstudio))
 
 ## RStudio server on the HPC
 
@@ -72,7 +72,7 @@ singularity build --remote rstudio-hpc.def rstudio-hpc.sif
 
 Below are some commands to using `qsub` in RStudio (i.e. run code blocks in RStudio chunks).
 
-## Calling `qsub` from `bash`
+### Calling `qsub` from `bash`
 ```bash
 # make a bash script
 echo "#!/bin/bash
@@ -92,7 +92,7 @@ echo "echo \"Hello World\"" | qsub
 ```
 >>> 1579439.jobmgr1
 ```
-# Calling `qsub` from `R`
+### Calling `qsub` from `R`
 
 ```r
 # use R to submit to qsub
@@ -107,7 +107,7 @@ qsub_id
 ```
 >>> [1] "1579441.jobmgr1"
 ```
-## reading results into `R`
+### reading results into `R`
 ```r
 cmd <- "
 echo hello
@@ -137,7 +137,7 @@ output
 ```
 >>> [1] "hello" "world" "hello" "world"
 ```
-## writing a `R` `qsub` function
+### writing a `R` `qsub` function
 
 The above code an be generalised into a function. This qsub function allows you to wrap code that should be run on a compute node.
 
@@ -184,7 +184,7 @@ system.time({
 >>> user  system elapsed 
 0.109   0.108  18.677 
 ```
-## Non-blocking "asynchronous" code in R
+### Non-blocking "asynchronous" code in R
 
 We can use the the package [future](https://github.com/HenrikBengtsson/future) to write non-blocking code
 ```r
@@ -329,7 +329,7 @@ res3
 [1] "finished"
 ```
 
-# future.batchtools
+## future.batchtools
 This is a toy example. Check out [future.batchtools](https://github.com/HenrikBengtsson/future.batchtools) for real code.
 ```r
 browseURL("https://github.com/HenrikBengtsson/future.batchtools")
