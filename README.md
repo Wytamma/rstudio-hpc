@@ -234,7 +234,7 @@ qstat -u jc220896
 1579436.jobmgr1 jc220896 short    STDIN      138184   1   1    8gb 12:00 R 00:00
 ```
 
-When required the values can queried. They will only block if they haven't finished running.
+When required the values can be queried. They will only block if they haven't finished running.
 ```r
 res1
 res2
