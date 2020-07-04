@@ -94,8 +94,9 @@ echo "echo \"Hello World\"" | qsub
 ```
 ### Calling `qsub` from `R`
 
+We can use R to submit to qsub jobs to.
+
 ```r
-# use R to submit to qsub
 cd_current_dir <- paste("cd", getwd())
 cmd <-
   paste(cd_current_dir, 'ls', sep = ' && ')  # change to current dir and run `ls`
@@ -108,6 +109,9 @@ qsub_id
 >>> [1] "1579441.jobmgr1"
 ```
 ### reading results into `R`
+
+We can read the job output file into R (waiting for it to be created first).
+
 ```r
 cmd <- "
 echo hello
@@ -186,7 +190,7 @@ system.time({
 ```
 ### Non-blocking "asynchronous" code in R
 
-We can use the the package [future](https://github.com/HenrikBengtsson/future) to write non-blocking code
+We can use the package [future](https://github.com/HenrikBengtsson/future) to write non-blocking code.
 ```r
 install.packages("future")
 ```
@@ -217,7 +221,7 @@ res3 %<-% {
 }
 ```
 
-While the functions are running you can do other things e.g. check the que status
+While the functions are running you can do other things e.g. check the que status.
 ```bash
 qstat -u jc220896
 ```
@@ -274,7 +278,7 @@ future_qsub <-
   }
 ```
 
-The future_qsub fucntion runs the code in the backgroud and returns future.
+The future_qsub function runs the code in the background and returns a future.
 ```r
 fut1 <- future_qsub(cmd)
 fut2 <- future_qsub(cmd)
