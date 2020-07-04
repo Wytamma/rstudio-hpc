@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -j oe
 #PBS -N r_studio 
-#PBS -l walltime=24:00:00
+#PBS -l walltime=100:00:00
 #PBS -l select=1:ncpus=4:mem=8gb
 #PBS -o ${HOME}/rstudio-hpc/output/
 
