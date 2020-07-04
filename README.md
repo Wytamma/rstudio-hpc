@@ -1,6 +1,6 @@
 # Integrating rstudio with the HPC (qsub)
 
-This repo has some scripts to get RStudio running on the compute nodes of the HPC. This is achieved though a combination of singularity and ssh commands. Once you have RStudio running you can create a nice workflow for use `qsub` from  RStudio ([see below](/#integrating-qsub-with-RStudio))
+This repo has some scripts to get RStudio running on the compute nodes of the HPC. This is achieved though a combination of singularity and ssh commands. Once you have RStudio running you can create a nice workflow for using `qsub` from within RStudio ([see below](/#integrating-qsub-with-RStudio))
 
 ## RStudio server on the HPC
 
