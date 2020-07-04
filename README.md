@@ -13,7 +13,7 @@ If you're not sure were to start work though this tutorial and associated webina
 Clone this repo into your home directory on the HPC
 
 ```bash
-https://github.com/Wytamma/rstudio-hpc.git && cd rstudio-hpc
+git pull https://github.com/Wytamma/rstudio-hpc.git && cd rstudio-hpc
 ```
 
 Pull the RStudio container 
