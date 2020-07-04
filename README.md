@@ -94,7 +94,7 @@ echo "echo \"Hello World\"" | qsub
 ```
 ### Calling `qsub` from `R`
 
-We can use R to submit to qsub jobs to.
+We can use R to submit qsub jobs.
 
 ```r
 cd_current_dir <- paste("cd", getwd())
