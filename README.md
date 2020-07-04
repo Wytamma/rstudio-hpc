@@ -200,7 +200,7 @@ library(future)
 # setting the plan takes sometime to spin up the other R session but it only has to run once
 plan(multisession)
 ```
-`qsub` function call can be wrapped in implicit futures (v %<-% {}), they will only block when value is queried.
+`qsub` function call can be wrapped in implicit futures (v %<-% {}), they will only block when the value is queried.
 
 ```r
 cmd <- "
@@ -317,7 +317,7 @@ Owner process: e2c28bcd-ac2d-dec8-96c8-1585b116328b
 Class: ‘MultisessionFuture’, ‘ClusterFuture’, ‘MultiprocessFuture’, ‘Future’, ‘environment’
 ```
 
-We can use the the future::value function to get the values from a future.
+We can use the future::value function to get the value from a future.
 ```r
 res1 <- value(fut1)
 res2 <- value(fut2)
