@@ -246,7 +246,7 @@ res3
 [1] "finished"
 ```
 
-An explicit future version of the qsub function can be created by wrapping the blocking code in the function with the future:future function. 
+An explicit future version of the qsub function can be created by wrapping the blocking code in the function with the future::future function. 
 ```r
 future_qsub <-
   function(cmd,
