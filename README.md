@@ -70,7 +70,7 @@ singularity build --remote rstudio-hpc.def rstudio-hpc.sif
 
 ## Integrating qsub with RStudio 
 
-Below are some commands to using `qsub` in RStudio (i.e. run code blocks in RStudio chunks).
+Below are some commands to use `qsub` in RStudio (i.e. run code blocks in RStudio chunks).
 
 ### Calling `qsub` from `bash`
 ```bash
