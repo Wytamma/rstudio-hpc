@@ -13,7 +13,7 @@ If you're not sure were to start work though this tutorial and associated webina
 Clone this repo into your home directory on the HPC
 
 ```bash
-git pull https://github.com/Wytamma/rstudio-hpc.git && cd rstudio-hpc
+git clone https://github.com/Wytamma/rstudio-hpc.git && cd rstudio-hpc
 ```
 
 Pull the RStudio container 
@@ -25,7 +25,7 @@ singularity pull library://wytamma/default/rstudio_hpc:latest
 Submit the `start_rstudio.sh` script to `qsub`
 
 ```bash
-qsub rstudio-hpc/start_rstudio.sh -o ~/rstudio-hpc/output/
+qsub start_rstudio.sh -o ~/rstudio-hpc/output/
 ```
 
 Check the log file for instructions on how to connect to the rstudio server

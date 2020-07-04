@@ -37,6 +37,7 @@ END
 # make ssh key for passwordless internode ssh
 # if you already have a public key copy it to .ssh/authorized_keys
 if [ ! -e ${HOME}/.ssh/id_rsa.pub ]
+then
   cat /dev/zero | ssh-keygen -t rsa
   cat ${HOME}/.ssh/id_rsa.pub >> ${HOME}/.ssh/authorized_keys
   chmod 700 ${HOME}/.ssh; chmod 640 ${HOME}/.ssh/authorized_keys
@@ -49,6 +50,9 @@ then
   echo 'R_LIBS_USER=~/R/%p-library/%v' >> ${HOME}/.Renviron
   # env vars need to go in the .Renviron file
 fi
+
+# make outfolder (check for errors)
+mkdir -p ${HOME}/rstudio-hpc/output
 
 # By default the only host file systems mounted within the container are $HOME, /tmp, /proc, /sys, and /dev.
 # you can use --bind [-B] to bind other file systems
