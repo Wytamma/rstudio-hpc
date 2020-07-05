@@ -188,9 +188,113 @@ system.time({
 >>> user  system elapsed 
 0.109   0.108  18.677 
 ```
-### Non-blocking "asynchronous" code in R
 
-We can use the package [future](https://github.com/HenrikBengtsson/future) to write non-blocking code.
+### Running `qsub` in background jobs with RStudio
+
+Save the commands we want to run into a rscript file 
+```bash
+# make a bash script
+echo "job2_res <- qsub(cmd)
+" > qsub_job_script.R
+```
+
+Use the rstudioapi to start the job (qsub_job_script.R) with a copy of the glob env and copy the result back to the global env.
+```r
+
+job_id <- rstudioapi::jobRunScript(path = "qsub_job_script.R", importEnv = TRUE, exportEnv = 'R_GlobalEnv')
+```
+
+### Running `qsub` in background jobs with `parallel`
+
+With parallel::mcparallel you can evaluate an R expression asynchronously in a separate process.
+
+```r
+library(parallel)
+pid1 <- mcparallel(qsub(cmd))
+pid2 <- mcparallel(qsub(cmd))
+pid3 <- mcparallel(qsub(cmd))
+```
+
+While the processes are running you can do other things e.g. check the queue status.
+
+```bash
+qstat -u jc220896
+```
+```bash
+>>> Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
+--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
+1579407.jobmgr1 jc220896 short    r_studio   107753   1   4    8gb 24:00 R 00:35
+1579434.jobmgr1 jc220896 short    STDIN      138182   1   1    8gb 12:00 R 00:00
+1579435.jobmgr1 jc220896 short    STDIN      138183   1   1    8gb 12:00 R 00:00
+1579436.jobmgr1 jc220896 short    STDIN      138184   1   1    8gb 12:00 R 00:00
+```
+
+Wait for all the jobs to finish and collect all results
+```r
+system.time({
+res <- mccollect(list(pid1, pid2, pid3))
+})
+res
+```
+```bash
+>>> user  system elapsed 
+0.094   0.119   5.995 
+$`194100`
+[1] "finished"
+
+$`194106`
+[1] "finished"
+
+$`194113`
+[1] "finished"
+```
+
+We can improve the qsub function so that the mcparallel call runs inside. 
+```r
+parallel_qsub <-
+  function(cmd,
+           qsub_prams = "",
+           run_dir = getwd(),
+           outfile_dir = getwd(),
+           remove_outfile = TRUE,
+           sleep_time = 1) {
+    cd_dir <- paste("cd", run_dir)
+    cmd <- paste(cd_dir, cmd, sep = ' && ')
+    qsub_cmd <-
+      sprintf('echo "%s" | qsub -j oe %s -o %s', cmd, qsub_prams, outfile_dir)
+    qsub_id <- system(qsub_cmd, intern = TRUE)
+    outfile <- paste0(qsub_id, ".OU")
+    
+    # move mcparallel inside qsub
+    output_pid <- mcparallel({
+      while (!file.exists(outfile)) {
+        Sys.sleep(sleep_time)
+      }
+      
+      output <- readLines(outfile)
+      if (remove_outfile) {
+        rm_outfile <- file.remove(outfile)
+      }
+      output
+    })
+    output_pid
+  }
+```
+
+This improves the interface for running jobs.
+```r
+pid1 <- parallel_qsub(cmd)
+pid2 <- parallel_qsub(cmd)
+pid3 <- parallel_qsub(cmd)
+
+res1 <- mccollect(pid1)
+res2 <- mccollect(pid2)
+res3 <- mccollect(pid3)
+```
+
+### future
+
+We can use the package [future](https://github.com/HenrikBengtsson/future) to write non-blocking code with many different backends. 
 ```r
 install.packages("future")
 ```
@@ -219,19 +323,6 @@ res2 %<-% {
 res3 %<-% {
   qsub(cmd)
 }
-```
-
-While the functions are running you can do other things e.g. check the que status.
-```bash
-qstat -u jc220896
-```
-```bash
->>> Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
---------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
-1579407.jobmgr1 jc220896 short    r_studio   107753   1   4    8gb 24:00 R 00:35
-1579434.jobmgr1 jc220896 short    STDIN      138182   1   1    8gb 12:00 R 00:00
-1579435.jobmgr1 jc220896 short    STDIN      138183   1   1    8gb 12:00 R 00:00
-1579436.jobmgr1 jc220896 short    STDIN      138184   1   1    8gb 12:00 R 00:00
 ```
 
 When required the values can be queried. They will only block if they haven't finished running.
@@ -334,7 +425,8 @@ res3
 ```
 
 ## future.batchtools
-This is a toy example. Check out [future.batchtools](https://github.com/HenrikBengtsson/future.batchtools) for real code.
+The way we are using future here is not optimal. Check out [future.batchtools](https://github.com/HenrikBengtsson/future.batchtools) for real code. Using future.batchtools you can seamlessly run R code on compute nodes without the hacky bash workaround found above. This allows you to do things like render plots in a job.
+
 ```r
 browseURL("https://github.com/HenrikBengtsson/future.batchtools")
 ```

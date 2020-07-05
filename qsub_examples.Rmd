@@ -60,7 +60,7 @@ output
 ```{r}
 qsub <-
   function(cmd,
-           qsub_prams = "-j oe",
+           qsub_prams = "",
            run_dir = getwd(),
            outfile_dir = getwd(),
            remove_outfile = TRUE,
@@ -68,7 +68,7 @@ qsub <-
     cd_dir <- paste("cd", run_dir)
     cmd <- paste(cd_dir, cmd, sep = ' && ')
     qsub_cmd <-
-      sprintf('echo "%s" | qsub %s -o %s', cmd, qsub_prams, outfile_dir)
+      sprintf('echo "%s" | qsub -j oe %s -o %s', cmd, qsub_prams, outfile_dir)
     qsub_id <- system(qsub_cmd, intern = TRUE)
     outfile <- paste0(qsub_id, ".OU")
     while (!file.exists(outfile)) {
@@ -95,6 +95,72 @@ system.time({
 # 
 ```
 
+```{bash}
+# make a bash script
+echo "job2_res <- qsub(cmd)
+" > qsub_job_script.R
+```
+
+```{r}
+# start the job (qsub_job_script.R) with a copy of the glob env and copy the res back
+job_id <- rstudioapi::jobRunScript(path = "qsub_job_script.R", importEnv = TRUE, exportEnv = 'R_GlobalEnv')
+```
+
+```{r}
+# run in parallel
+library(parallel)
+pid1 <- mcparallel(qsub(cmd))
+pid2 <- mcparallel(qsub(cmd))
+pid3 <- mcparallel(qsub(cmd))
+# wait for both jobs to finish and collect all results
+system.time({
+res <- mccollect(list(pid1, pid2, pid3))
+})
+res
+```
+
+```{r}
+parallel_qsub <-
+  function(cmd,
+           qsub_prams = "",
+           run_dir = getwd(),
+           outfile_dir = getwd(),
+           remove_outfile = TRUE,
+           sleep_time = 1) {
+    cd_dir <- paste("cd", run_dir)
+    cmd <- paste(cd_dir, cmd, sep = ' && ')
+    qsub_cmd <-
+      sprintf('echo "%s" | qsub -j oe %s -o %s', cmd, qsub_prams, outfile_dir)
+    qsub_id <- system(qsub_cmd, intern = TRUE)
+    outfile <- paste0(qsub_id, ".OU")
+    
+    # move mcparallel inside qsub
+    output_pid <- mcparallel({
+      while (!file.exists(outfile)) {
+        Sys.sleep(sleep_time)
+      }
+      
+      output <- readLines(outfile)
+      if (remove_outfile) {
+        rm_outfile <- file.remove(outfile)
+      }
+      output
+    })
+    output_pid
+  }
+```
+
+```{r}
+pid1 <- parallel_qsub(cmd)
+pid2 <- parallel_qsub(cmd)
+pid3 <- parallel_qsub(cmd)
+
+res1 <- mccollect(pid1)
+res2 <- mccollect(pid2)
+res3 <- mccollect(pid3)
+```
+
+
 ```{r}
 # install.packages("future")
 ```
@@ -111,7 +177,7 @@ sleep 5
 echo finished
 "
 
-# implicit futures calls run in the backgroud
+# implicit futures calls run in the backgroud sessions
 res1 %<-% {
   qsub(cmd)
 }
@@ -124,10 +190,6 @@ res3 %<-% {
 }
 ```
 
-```{bash}
-qstat -u jc220896
-```
-
 ```{r}
 res1
 res2
@@ -137,7 +199,7 @@ res3
 ```{r}
 future_qsub <-
   function(cmd,
-           qsub_prams = "-j oe",
+           qsub_prams = "",
            run_dir = getwd(),
            outfile_dir = getwd(),
            remove_outfile = TRUE,
@@ -145,7 +207,7 @@ future_qsub <-
     cd_dir <- paste("cd", run_dir)
     cmd <- paste(cd_dir, cmd, sep = ' && ')
     qsub_cmd <-
-      sprintf('echo "%s" | qsub %s -o %s', cmd, qsub_prams, outfile_dir)
+      sprintf('echo "%s" | qsub -j oe %s -o %s', cmd, qsub_prams, outfile_dir)
     qsub_id <- system(qsub_cmd, intern = TRUE)
     outfile <- paste0(qsub_id, ".OU")
     
