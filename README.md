@@ -122,7 +122,7 @@ echo world
 
 # call qsub from R
 qsub_cmd <- sprintf('echo "%s" | qsub -j oe -o %s', cmd, getwd())  # set the output dir to the current dir
-qsub_id <-system(qsub_cmd, intern = TRUE)
+qsub_id <- system(qsub_cmd, intern = TRUE)
 outfile <- paste0(qsub_id, ".OU")
 
 # wait for the outfile to be created
@@ -316,6 +316,7 @@ echo finished
 res1 %<-% {
   qsub(cmd)
 }
+
 res2 %<-% {
   qsub(cmd)
 }
