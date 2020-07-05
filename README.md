@@ -148,7 +148,7 @@ The above code an be generalised into a function. This qsub function allows you 
 ```r
 qsub <-
   function(cmd,
-           qsub_prams = "-j oe",
+           qsub_prams = "",
            run_dir = getwd(),
            outfile_dir = getwd(),
            remove_outfile = TRUE,
@@ -156,7 +156,7 @@ qsub <-
     cd_dir <- paste("cd", run_dir)
     cmd <- paste(cd_dir, cmd, sep = ' && ')
     qsub_cmd <-
-      sprintf('echo "%s" | qsub %s -o %s', cmd, qsub_prams, outfile_dir)
+      sprintf('echo "%s" | qsub %s -j oe -o %s', cmd, qsub_prams, outfile_dir)
     qsub_id <- system(qsub_cmd, intern = TRUE)
     outfile <- paste0(qsub_id, ".OU")
     while (!file.exists(outfile)) {
@@ -261,7 +261,7 @@ parallel_qsub <-
     cd_dir <- paste("cd", run_dir)
     cmd <- paste(cd_dir, cmd, sep = ' && ')
     qsub_cmd <-
-      sprintf('echo "%s" | qsub -j oe %s -o %s', cmd, qsub_prams, outfile_dir)
+      sprintf('echo "%s" | qsub %s -j oe -o %s', cmd, qsub_prams, outfile_dir)
     qsub_id <- system(qsub_cmd, intern = TRUE)
     outfile <- paste0(qsub_id, ".OU")
     
@@ -341,7 +341,7 @@ An explicit future version of the qsub function can be created by wrapping the b
 ```r
 future_qsub <-
   function(cmd,
-           qsub_prams = "-j oe",
+           qsub_prams = "",
            run_dir = getwd(),
            outfile_dir = getwd(),
            remove_outfile = TRUE,
@@ -349,7 +349,7 @@ future_qsub <-
     cd_dir <- paste("cd", run_dir)
     cmd <- paste(cd_dir, cmd, sep = ' && ')
     qsub_cmd <-
-      sprintf('echo "%s" | qsub %s -o %s', cmd, qsub_prams, outfile_dir)
+      sprintf('echo "%s" | qsub %s -j oe -o %s', cmd, qsub_prams, outfile_dir)
     qsub_id <- system(qsub_cmd, intern = TRUE)
     outfile <- paste0(qsub_id, ".OU")
     
