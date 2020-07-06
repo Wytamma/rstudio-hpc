@@ -55,7 +55,7 @@ fi
 # make outfolder (check for errors)
 mkdir -p ${HOME}/rstudio-hpc/output
 
-# create secure-cookie-key (thanks @Lorenzo)
+# create secure-cookie-key (thanks @MboiTui)
 mkdir -p ${HOME}/tmp/rstudio-server/
 uuid > ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key
 
