@@ -55,9 +55,14 @@ fi
 # make outfolder (check for errors)
 mkdir -p ${HOME}/rstudio-hpc/output
 
+# create secure-cookie-key (thanks @Lorenzo)
+mkdir -p ${HOME}/tmp/rstudio-server/
+uuid > ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key
+
 # By default the only host file systems mounted within the container are $HOME, /tmp, /proc, /sys, and /dev.
 # you can use --bind [-B] to bind other file systems
 singularity exec ${HOME}/rstudio-hpc/rstudio_hpc_latest.sif bash -c "\
   source ${HOME}/.Renviron && \
   rserver --www-port ${PORT} --auth-none=0 --auth-pam-helper-path=pam-helper \
+  --secure-cookie-key-file ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key
   "
