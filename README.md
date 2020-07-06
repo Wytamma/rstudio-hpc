@@ -78,16 +78,16 @@ Below are some commands to use `qsub` in RStudio (i.e. run code blocks in RStudi
 echo "#!/bin/bash
 echo \"Hello World\"" > myscript.sh
 
-# submit to qsub
-qsub $(pwd)/myscript.sh
+# submit to qsub / redirect output to current dir
+qsub -o $(pwd) $(pwd)/myscript.sh
 ```
 ```bash
 >>> 1579438.jobmgr1
 ```
 
 ```bash
-# submit to qsub using pipe
-echo "echo \"Hello World\"" | qsub
+# submit to qsub using pipe / redirect output to current dir
+echo "echo \"Hello World\"" | qsub -o $(pwd)
 ```
 ```
 >>> 1579439.jobmgr1
@@ -100,7 +100,7 @@ We can use R to submit qsub jobs.
 cd_current_dir <- paste("cd", getwd())
 cmd <-
   paste(cd_current_dir, 'ls', sep = ' && ')  # change to current dir and run `ls`
-qsub_cmd <- sprintf('echo "%s" | qsub', cmd)  # use pipe
+qsub_cmd <- sprintf('echo "%s" | qsub -o $(pwd)', cmd)  # use pipe
 qsub_id <-
   system(qsub_cmd, intern = TRUE)  # call bash command with R
 qsub_id
