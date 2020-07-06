@@ -193,7 +193,7 @@ system.time({
 
 Save the commands we want to run into a rscript file 
 ```bash
-# make a bash script
+# make a R script
 echo "job2_res <- qsub(cmd)
 " > qsub_job_script.R
 ```
