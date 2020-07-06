@@ -30,13 +30,13 @@ Submit the `start_rstudio.sh` script to `qsub`
 qsub start_rstudio.sh -o ~/rstudio-hpc/output/
 ```
 
-Check the log file for instructions on how to connect to the rstudio server
+Check the end of the log file for instructions on how to connect to the rstudio server
 
 ```bash
 cat log.txt
 ```
 
-In a new terminal use the `ssh` command from the log file to 
+In a new terminal (e.g. disconnect form the HPC with `exit`) use the `ssh` command from the log file to 
 
 ```bash
 ssh -L 8787:${HOSTNAME}:${PORT} ${USER}@zodiac.hpc.jcu.edu.au -p 8822 # -p for off-campus
