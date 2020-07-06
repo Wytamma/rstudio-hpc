@@ -5,6 +5,12 @@ author: "Wytamma Wirth"
 
 See [README.md](https://github.com/Wytamma/rstudio-hpc/blob/master/README.md) for details.
 
+
+## Integrating qsub with RStudio 
+
+Below are some commands to use `qsub` in RStudio (i.e. run code blocks in RStudio chunks).
+
+### Calling `qsub` from `bash`
 ```{bash}
 # make a bash script
 echo "#!/bin/bash
@@ -19,8 +25,11 @@ qsub $(pwd)/myscript.sh
 echo "echo \"Hello World\"" | qsub
 ```
 
+### Calling `qsub` from `R`
+
+We can use R to submit qsub jobs.
+
 ```{r}
-# use R to submit to qsub
 cd_current_dir <- paste("cd", getwd())
 cmd <-
   paste(cd_current_dir, 'ls', sep = ' && ')  # change to current dir and run `ls`
@@ -29,6 +38,10 @@ qsub_id <-
   system(qsub_cmd, intern = TRUE)  # call bash command with R
 qsub_id
 ```
+
+### reading results into `R`
+
+We can read the job output file into R (waiting for it to be created first).
 
 ```{r}
 cmd <- "
@@ -40,7 +53,7 @@ echo world
 
 # call qsub from R
 qsub_cmd <- sprintf('echo "%s" | qsub -j oe -o %s', cmd, getwd())  # set the output dir to the current dir
-qsub_id <-system(qsub_cmd, intern = TRUE)
+qsub_id <- system(qsub_cmd, intern = TRUE)
 outfile <- paste0(qsub_id, ".OU")
 
 # wait for the outfile to be created
@@ -57,10 +70,14 @@ rm_outfile <- file.remove(outfile)
 output
 ```
 
+### writing a `R` `qsub` function
+
+The above code an be generalised into a function. This qsub function allows you to wrap code that should be run on a compute node.
+
 ```{r}
 qsub <-
   function(cmd,
-           qsub_prams = "",
+           qsub_prams = "-l walltime=00:20:00 -l select=1:ncpus=1:mem=1gb",
            run_dir = getwd(),
            outfile_dir = getwd(),
            remove_outfile = TRUE,
@@ -68,7 +85,7 @@ qsub <-
     cd_dir <- paste("cd", run_dir)
     cmd <- paste(cd_dir, cmd, sep = ' && ')
     qsub_cmd <-
-      sprintf('echo "%s" | qsub -j oe %s -o %s', cmd, qsub_prams, outfile_dir)
+      sprintf('echo "%s" | qsub %s -j oe -o %s', cmd, qsub_prams, outfile_dir)
     qsub_id <- system(qsub_cmd, intern = TRUE)
     outfile <- paste0(qsub_id, ".OU")
     while (!file.exists(outfile)) {
@@ -82,47 +99,66 @@ qsub <-
   }
 ```
 
+`R` waits for each `qsub` function call to finish before running the next one. This takes about 18s (3 x 5s + a little overhead).
+
 ```{r}
 cmd <- "
 sleep 5
 echo finished
 "
-system.time({
-  qsub(cmd)
-  qsub(cmd)
-  qsub(cmd)
-})
+
+qsub(cmd)
+qsub(cmd)
+qsub(cmd)
 # 
 ```
 
+### Running `qsub` in background jobs with RStudio
+
+Save the commands we want to run into a rscript file 
 ```{bash}
 # make a bash script
 echo "job2_res <- qsub(cmd)
 " > qsub_job_script.R
 ```
 
+Use the rstudioapi to start the job (qsub_job_script.R) with a copy of the glob env and copy the result back to the global env.
 ```{r}
-# start the job (qsub_job_script.R) with a copy of the glob env and copy the res back
 job_id <- rstudioapi::jobRunScript(path = "qsub_job_script.R", importEnv = TRUE, exportEnv = 'R_GlobalEnv')
 ```
 
+### Running `qsub` in background jobs with `parallel`
+
+With parallel::mcparallel you can evaluate an R expression asynchronously in a separate process.
+
 ```{r}
-# run in parallel
 library(parallel)
+cmd <- "
+sleep 5
+echo finished
+"
 pid1 <- mcparallel(qsub(cmd))
 pid2 <- mcparallel(qsub(cmd))
 pid3 <- mcparallel(qsub(cmd))
-# wait for both jobs to finish and collect all results
-system.time({
+```
+
+While the processes are running you can do other things e.g. check the queue status.
+
+```{bash}
+qstat -u jc220896
+```
+
+Wait for all the jobs to finish and collect all results
+```{r}
 res <- mccollect(list(pid1, pid2, pid3))
-})
 res
 ```
 
+We can improve the qsub function so that the mcparallel call runs inside. 
 ```{r}
 parallel_qsub <-
   function(cmd,
-           qsub_prams = "",
+           qsub_prams = "-l walltime=00:20:00 -l select=1:ncpus=1:mem=1gb",
            run_dir = getwd(),
            outfile_dir = getwd(),
            remove_outfile = TRUE,
@@ -130,7 +166,7 @@ parallel_qsub <-
     cd_dir <- paste("cd", run_dir)
     cmd <- paste(cd_dir, cmd, sep = ' && ')
     qsub_cmd <-
-      sprintf('echo "%s" | qsub -j oe %s -o %s', cmd, qsub_prams, outfile_dir)
+      sprintf('echo "%s" | qsub %s -j oe -o %s', cmd, qsub_prams, outfile_dir)
     qsub_id <- system(qsub_cmd, intern = TRUE)
     outfile <- paste0(qsub_id, ".OU")
     
@@ -150,6 +186,7 @@ parallel_qsub <-
   }
 ```
 
+This improves the interface for running jobs.
 ```{r}
 pid1 <- parallel_qsub(cmd)
 pid2 <- parallel_qsub(cmd)
@@ -160,16 +197,19 @@ res2 <- mccollect(pid2)
 res3 <- mccollect(pid3)
 ```
 
+### future
 
+We can use the package [future](https://github.com/HenrikBengtsson/future) to write non-blocking code with many different backends. 
 ```{r}
-# install.packages("future")
+#install.packages("future")
 ```
 
 ```{r}
 library(future)
-# setting the plan takes sometime to spin up the other R session but is only has to run once
+# setting the plan takes sometime to spin up the other R session but it only has to run once
 plan(multisession)
 ```
+`qsub` function call can be wrapped in implicit futures (v %<-% {}), they will only block when the value is queried.
 
 ```{r}
 cmd <- "
@@ -177,10 +217,11 @@ sleep 5
 echo finished
 "
 
-# implicit futures calls run in the backgroud sessions
+# implicit futures calls run in the backgroud
 res1 %<-% {
   qsub(cmd)
 }
+
 res2 %<-% {
   qsub(cmd)
 }
@@ -190,16 +231,18 @@ res3 %<-% {
 }
 ```
 
+When required the values can be queried. They will only block if they haven't finished running.
 ```{r}
 res1
 res2
 res3
 ```
 
+An explicit future version of the qsub function can be created by wrapping the blocking code in the function with the future::future function. 
 ```{r}
 future_qsub <-
   function(cmd,
-           qsub_prams = "",
+           qsub_prams = "-l walltime=00:20:00 -l select=1:ncpus=1:mem=1gb",
            run_dir = getwd(),
            outfile_dir = getwd(),
            remove_outfile = TRUE,
@@ -207,7 +250,7 @@ future_qsub <-
     cd_dir <- paste("cd", run_dir)
     cmd <- paste(cd_dir, cmd, sep = ' && ')
     qsub_cmd <-
-      sprintf('echo "%s" | qsub -j oe %s -o %s', cmd, qsub_prams, outfile_dir)
+      sprintf('echo "%s" | qsub %s -j oe -o %s', cmd, qsub_prams, outfile_dir)
     qsub_id <- system(qsub_cmd, intern = TRUE)
     outfile <- paste0(qsub_id, ".OU")
     
@@ -227,6 +270,7 @@ future_qsub <-
   }
 ```
 
+The future_qsub function runs the code in the background and returns a future.
 ```{r}
 fut1 <- future_qsub(cmd)
 fut2 <- future_qsub(cmd)
@@ -235,6 +279,7 @@ fut3 <- future_qsub(cmd)
 fut1
 ```
 
+We can use the future::value function to get the value from a future.
 ```{r}
 res1 <- value(fut1)
 res2 <- value(fut2)
@@ -245,3 +290,9 @@ res2
 res3
 ```
 
+## future.batchtools
+The way we are using future here is not optimal. Check out [future.batchtools](https://github.com/HenrikBengtsson/future.batchtools) for real code. Using future.batchtools you can seamlessly run R code on compute nodes without the hacky bash workaround found above. This allows you to do things like render plots in a job.
+
+```{r}
+browseURL("https://github.com/HenrikBengtsson/future.batchtools")
+```
