@@ -6,7 +6,7 @@ This repo has some scripts to get RStudio running on the compute nodes of the HP
 
 ### Before you start 
 
-You should need to have some idea of how to use singularity.
+You should have some idea of how to use singularity.
 
 If you're not sure where to start work though this tutorial and associated webinars https://pawseysc.github.io/singularity-containers/
 
