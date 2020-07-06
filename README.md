@@ -39,7 +39,7 @@ cat log.txt
 In a new terminal (e.g. disconnect form the HPC with `exit`) use the `ssh` command from the log file to 
 
 ```bash
-ssh -L 8787:${HOSTNAME}:${PORT} ${USER}@zodiac.hpc.jcu.edu.au -p 8822 # -p for off-campus
+ssh -L 8787:${HOSTNAME}:${PORT} ${USER}@zodiac.hpc.jcu.edu.au -p 8822 # only include -p 8822 if you are off-campus
 ```
 
 Point your web browser to http://localhost:8787
