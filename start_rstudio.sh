@@ -56,8 +56,11 @@ fi
 mkdir -p ${HOME}/rstudio-hpc/output
 
 # create secure-cookie-key (thanks @MboiTui)
-mkdir -p ${HOME}/tmp/rstudio-server/
-uuid > ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key
+if [ ! -e ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key ]
+then
+   mkdir -p ${HOME}/tmp/rstudio-server/
+   uuid > ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key
+fi
 
 # By default the only host file systems mounted within the container are $HOME, /tmp, /proc, /sys, and /dev.
 # you can use --bind [-B] to bind other file systems
