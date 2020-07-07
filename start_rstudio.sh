@@ -59,7 +59,8 @@ mkdir -p ${HOME}/rstudio-hpc/output
 if [ ! -e ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key ]
 then
    mkdir -p ${HOME}/tmp/rstudio-server/
-   uuid > ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key
+   export UUID=$(python  -c 'import uuid; print uuid.uuid1()')
+   echo UUID > ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key
 fi
 
 # By default the only host file systems mounted within the container are $HOME, /tmp, /proc, /sys, and /dev.
