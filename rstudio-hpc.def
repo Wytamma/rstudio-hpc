@@ -28,9 +28,11 @@ From: rocker/tidyverse:3.6.3
 
     # add PBS commands
     # full path required for host command 
-    add_host_command /opt/pbs/bin/qsub qsub
-    add_host_command /opt/pbs/bin/qstat qstat
-    add_host_command /opt/pbs/bin/qdel qdel
+    # e.g. add_host_command /opt/pbs/bin/qsub qsub
+    # use for loop to add all PBS commands
+    for cmd in /opt/pbs/bin/*; do 
+      add_host_command $cmd $(basename $cmd)
+    done
 
 %environment
     # add env vars
