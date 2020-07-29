@@ -78,6 +78,9 @@ From: rocker/tidyverse:3.6.3
     add_host_command /opt/pbs/bin/qsub qsub
     add_host_command /opt/pbs/bin/qterm qterm
     add_host_command /opt/pbs/bin/tracejob tracejob
+    
+    # Reset the default CRAN repo so that user installed packages don't use a CRAN snapshot from built time
+    echo "options(repos = c(CRAN = 'https://cran.rstudio.org'))" >> /usr/local/lib/R/etc/Rprofile.site
 
 %environment
     # add env vars
