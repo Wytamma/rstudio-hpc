@@ -59,7 +59,7 @@ mkdir -p ${HOME}/rstudio-hpc/output
 if [ ! -e ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key ]
 then
    mkdir -p ${HOME}/tmp/rstudio-server/
-   export UUID=$(python  -c 'import uuid; print uuid.uuid1()')
+   export UUID=$(python  -c 'import uuid; print(uuid.uuid1())')
    echo ${UUID} > ${HOME}/tmp/rstudio-server/${USER}_secure-cookie-key
 fi
 
