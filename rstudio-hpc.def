@@ -1,5 +1,5 @@
 BootStrap: docker
-From: rocker/tidyverse:3.6.3
+From: rocker/tidyverse:4.3.1
 
 # https://sylabs.io/guides/3.5/user-guide/definition_files.html
 
