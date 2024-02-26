@@ -24,6 +24,8 @@ Pull the RStudio container
 singularity pull library://wytamma/default/rstudio_hpc:latest
 ```
 
+Please note: This image has an old version of RStudio (v3). To use a later version please [build the image yourself](https://github.com/Wytamma/rstudio-hpc?tab=readme-ov-file#build-the-rstudio-container-yourself).
+
 Submit the `start_rstudio.sh` script to `qsub`
 
 ```bash
